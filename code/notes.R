@@ -73,3 +73,9 @@ ggplot(data = sample_data) +
   theme_bw()+
     theme(legend.position = "right")
 
+#summarize data 
+sample_data %>% summarize(sample_data, mean_cells = mean(cells_per_ml), 
+          max_cells = max(cells_per_ml),
+          min_cells = min(cells_per_ml))
+getwd()
+Sys.Date()
