@@ -73,9 +73,48 @@ ggplot(data = sample_data) +
   theme_bw()+
     theme(legend.position = "right")
 
-#summarize data 
-sample_data %>% summarize(sample_data, mean_cells = mean(cells_per_ml), 
-          max_cells = max(cells_per_ml),
-          min_cells = min(cells_per_ml))
-getwd()
-Sys.Date()
+  
+ggplot(data = sample_data, aes(x = total_nitrogen, y = cells_per_ml / 1e6)) +
+    geom_point(aes(size = temperature, color = env_group)) +
+    geom_smooth(method = "lm", se = TRUE) +
+    labs(
+      title = "What is the relation between total nitrogen and microbial cell abundance?",
+      x = "Total nitrogen",
+      y = "Microbial cell abundance (million cells/mL)",
+      size = "Temperature (°C)",
+      color = "Environment group"
+    )
+
+ggplot(sample_data, aes(x = total_phosphorus, y = cells_per_ml / 1e6)) +
+  geom_point(aes(size = temperature, color = env_group)) +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(
+    title = "What is the relation between total phosphorus and microbial cell abundance?",
+    x = "Total phosphorus",
+    y = "Microbial cell abundance (million cells/mL)",
+    size = "Temperature (°C)",
+    color = "Environment group"
+  )
+library(dplyr)
+data1 <- sample_data %>% filter(env_group == "Deep")
+data2 <- sample_data %>% select(sample_id, env_group, depth)
+head(data1)
+head(data2)
+
+mean_cell_abundance <- sample_data %>%
+  group_by(env_group) %>%
+  summarise(mean_cell_abundance = mean(cells_per_ml))
+
+mean_temperature <- sample_data %>%
+  group_by(env_group) %>% 
+  summarise(mean_temperature = mean(temperature))
+
+head(mean_cell_abundance)
+head(mean_temperature)
+
+sample_data_millions <- sample_data %>%
+  mutate(cells_millions = cells_per_ml / 1e6) %>%
+  select(sample_id, env_group, depth, temperature, cells_millions)
+
+head(sample_data_millions)
+
