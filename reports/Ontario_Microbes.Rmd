@@ -63,4 +63,74 @@ head(sample_data_df)
 
 ```
 
+# Reshaping the Data 
+
+Create long-formatted data from wide-formatted data. 
+
+```{r reshape data}
+
+taxon_long_df <- 
+  taxon_clean_df %>%
+  pivot_longer(cols = Proteobacteria:Cyanobacteria, 
+               names_to = "Phylum", values_to = "Abundance") 
+
+# Intuition Check 
+nrow(taxon_long_df)
+nrow(taxon_clean_df)
+ 
+```
+
+## Plot Taxon Data 
+
+```{r plot-taxa}
+taxon_long_df %>%
+  ggplot(aes(x= sample_id, y = Abundance, fill = Phylum)) +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+# Joining The Data 
+
+We will combine taxonomy and environmental data together into one dataframe. 
+
+```{r join-data}
+
+# check the sample_id
+sample_data_df$sample_id
+taxon_clean_df$sample_id
+
+# Check the length 
+length(sample_data_df$sample_id)
+length(taxon_clean_df$sample_id)
+
+# Fix the sample names 
+taxon_clean_goodSep_df <- taxon_clean_df %>%
+  mutate(sample_id = str_replace(sample_id, pattern = "Sep", replacement = "September"))
+
+# Sample names are different 
+sample_and_taxon_df <- 
+  inner_join(sample_data_df, taxon_clean_goodSep_df, by = "sample_id") 
+
+# Intuition check 
+dim(sample_and_taxon_df)
+
+# Write the file 
+write_csv(sample_and_taxon_df, file = "data/sample_and_taxon.csv")
+```
+
+# Plot Chloroflexi 
+```{r plot-chloroflexi}
+ggplot(sample_and_taxon_df, 
+       aes(x = depth, y = Chloroflexi)) +
+  geom_point() + 
+  labs(x = "Depth (m)", y = "Chloroflexi (% Abundance)", 
+       title = "Strong Association of depth and Chlooroflexi Abundance")  + 
+  geom_smooth(method = "lm", formula = y ~ poly(x, 2))
+
+
+
+```
+
+
+
 
